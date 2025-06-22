@@ -1,7 +1,8 @@
 import os
 import tkinter as tk
 from tkinter import filedialog, scrolledtext, messagebox, ttk
-from tkinter import font as tkfont # <-- IMPORT ADDED HERE
+from tkinter import font as tkfont
+from datetime import datetime # <-- IMPORT ADDED HERE
 
 # --- MODEL ---
 EXCLUDED_DIRS = {'.git', '__pycache__', 'node_modules'}
@@ -112,13 +113,10 @@ class AppView(tk.Tk):
         self.configure(bg=BG_COLOR)
         style.configure('.', background=BG_COLOR, foreground=FG_COLOR, font=("TkDefaultFont", 11))
         
-        # Define the font we want to use in the Treeview
         tree_font = tkfont.Font(family="TkDefaultFont", size=12)
         
-        # Get the required height for a line of text in this font and add padding
         row_height = tree_font.metrics("linespace") + 5 
 
-        # Use the calculated font and rowheight in the style
         style.configure("Treeview", 
                         font=tree_font, 
                         rowheight=row_height,
@@ -236,8 +234,16 @@ class Controller:
             messagebox.showwarning("No Files", "Please select at least one file.")
             return
 
+        # Get the current time and format it
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
         dir_tree = self.model.get_directory_tree_string(self.view.folder_path)
-        final_output = [f"Directory tree for '{os.path.basename(self.view.folder_path)}':\n\n{dir_tree}\n\n--- Selected File Contents ---\n"]
+        
+        # Create the initial output list with the timestamp
+        final_output = [
+            f"--- Output generated on: {timestamp} ---\n",
+            f"Directory tree for '{os.path.basename(self.view.folder_path)}':\n\n{dir_tree}\n\n--- Selected File Contents ---\n"
+        ]
 
         for rel_path in sorted(self.view.selected_files):
             abs_path = os.path.join(self.view.folder_path, rel_path)
